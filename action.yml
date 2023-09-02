@@ -51,13 +51,14 @@ runs:
           ref="v${ref}"
         fi
 
-        ref="$(git ls-remote --exit-code https://github.com/blogc/blogc.git "${ref}")"
-        if [[ $? != 0 ]]; then
-          echo "::error title=Error hint::The requested version was not found: ${{ inputs.blogc-version }}"
-          exit 1
+        rref="$(git ls-remote --exit-code https://github.com/blogc/blogc.git "${ref}")"
+        if [[ $? -eq 0 ]]; then
+          echo "ref=$(echo "${rref}" | cut -d$'\t' -f1)" >> $GITHUB_OUTPUT
+          exit 0
         fi
 
-        echo "ref=$(echo "${ref}" | cut -d$'\t' -f1)" >> $GITHUB_OUTPUT
+        # assume that ref is a hash already, pass it directly to actions/checkout
+        echo "ref=${ref}" >> $GITHUB_OUTPUT
       shell: bash
 
     - name: Restore blogc build from cache, if exists

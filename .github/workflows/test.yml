@@ -14,8 +14,9 @@ jobs:
         version:
           - HEAD
           - LATEST
-          - v0.20.0
-          - 0.19.0
+          - "v0.20.0"
+          - "0.19.0"
+          - "3f6ae823cd8ff8049abeca2be495c727563c919e"
 
     steps:
       - name: Check out code
