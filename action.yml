@@ -51,9 +51,8 @@ runs:
           ref="v${ref}"
         fi
 
-        rref="$(git ls-remote --exit-code https://github.com/blogc/blogc.git "${ref}")"
-        if [[ $? -eq 0 ]]; then
-          echo "ref=$(echo "${rref}" | cut -d$'\t' -f1)" >> $GITHUB_OUTPUT
+        if git ls-remote --exit-code https://github.com/blogc/blogc.git "${ref}" > /dev/null; then
+          echo "ref=$(git ls-remote https://github.com/blogc/blogc.git "${ref}" | cut -d$'\t' -f1)" >> $GITHUB_OUTPUT
           exit 0
         fi
 
