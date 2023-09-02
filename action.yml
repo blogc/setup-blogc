@@ -72,6 +72,7 @@ runs:
       with:
         repository: blogc/blogc
         ref: ${{ steps.gitref.outputs.ref }}
+        fetch-depth: 0
 
     - name: Install dependencies
       if: steps.cache-restore.outputs.cache-hit != 'true'
