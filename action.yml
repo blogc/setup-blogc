@@ -23,17 +23,27 @@ runs:
         exit 1
       shell: bash
 
+    - name: Restore blogc build from cache, if exists
+      id: cache-restore
+      uses: actions/cache/restore@v3
+      with:
+        path: /opt/blogc
+        key: Linux-build-blogc-{{ inputs.blogc-version }}
+
     - name: Check out code
+      if: steps.cache-restore.outputs.cache-hit != 'true'
       uses: actions/checkout@v3
       with:
         repository: blogc/blogc
         ref: ${{ inputs.blogc-version }}
 
     - name: Install dependencies
+      if: steps.cache-restore.outputs.cache-hit != 'true'
       run: sudo apt install -y ronn
       shell: bash
 
     - name: Build blogc
+      if: steps.cache-restore.outputs.cache-hit != 'true'
       run: |
         ./autogen.sh
         ./configure \
@@ -45,7 +55,18 @@ runs:
           --enable-make
         make -j4
         sudo make DESTDIR=/opt/blogc install
-        echo "/opt/blogc/bin" >> $GITHUB_PATH
+      shell: bash
+
+    - name: Save blogc build to cache, if needed
+      if: steps.cache-restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v3
+      id: cache-save
+      with:
+        path: /opt/blogc
+        key: Linux-build-blogc-{{ inputs.blogc-version }}
+
+    - name: Add blogc to PATH
+      run: echo "/opt/blogc/bin" >> $GITHUB_PATH
       shell: bash
 
     - name: Check if blogc works
