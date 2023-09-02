@@ -17,6 +17,6 @@ jobs:
           clean: true
 
       - name: Check
-        uses: ./action
+        uses: blogc/setup-blogc
         with:
           blogc-version: v0.20.1
