@@ -1,0 +1,55 @@
+name: 'Setup blogc environment'
+description: 'Setup a blogc environment and add it to the PATH'
+
+inputs:
+  blogc-version:
+    description: 'The blogc version to setup. Must be a git reference or LATEST for latest stable release'
+    required: true
+    default: 'LATEST'
+
+outputs:
+  blogc-version:
+    description: 'The installed blogc version. Useful when given LATEST as input.'
+  cache-hit:
+    description: 'A boolean value to indicate if a cache was hit'
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check runner OS
+      if: ${{ runner.os != 'Linux' }}
+      run: |
+        echo "::error title=Error hint::The setup-blogc action supports only linux"
+        exit 1
+      shell: bash
+
+    - name: Check out code
+      uses: actions/checkout@v3
+      with:
+        repository: blogc/blogc
+        ref: ${{ inputs.blogc-version }}
+
+    - name: Install dependencies
+      run: apt install -y ronn
+      shell: bash
+
+    - name: Build blogc
+      run: |
+        ./autogen.sh
+        ./configure \
+          "CFLAGS=-Wall -g -O3" \
+          --prefix=/
+          --disable-silent-rules \
+          --disable-valgrind \
+          --disable-tests \
+          --enable-make
+        make -j4
+        sudo make DESTDIR=/opt/blogc install
+        echo "/opt/blogc/bin" >> $GITHUB_PATH
+      shell: bash
+
+    - name: Check if blogc works
+      run: |
+        blogc -v
+        blogc-make -v
+      shell: bash

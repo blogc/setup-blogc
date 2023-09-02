@@ -1,0 +1,22 @@
+name: Test
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test-check:
+    name: test setup-blogc
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          path: action
+          clean: true
+
+      - name: Check
+        uses: ./action
+        with:
+          blogc-version: 0.20.1
