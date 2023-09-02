@@ -73,7 +73,7 @@ runs:
       with:
         repository: blogc/blogc
         ref: ${{ steps.gitref.outputs.ref }}
-        path: blogc
+        path: .blogc-build
         fetch-depth: 0
 
     - name: Install dependencies
@@ -83,7 +83,7 @@ runs:
 
     - name: Build blogc
       if: steps.cache-restore.outputs.cache-hit != 'true'
-      working-directory: blogc
+      working-directory: .blogc-build
       run: |
         ./autogen.sh
         ./configure \
@@ -95,6 +95,10 @@ runs:
           --enable-make
         make -j$(nproc)
         sudo make DESTDIR=/opt/blogc install
+      shell: bash
+
+    - name: Delete blogc build directory
+      run: rm -rf .blogc-build
       shell: bash
 
     - name: Save blogc build to cache, if needed
