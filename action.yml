@@ -10,6 +10,7 @@ inputs:
 outputs:
   blogc-version:
     description: 'The installed blogc version. Useful when given LATEST as input.'
+    value: ${{ steps.version.outputs.version }}
 
   cache-hit:
     description: 'A boolean value to indicate if a cache was hit'
@@ -107,7 +108,9 @@ runs:
       shell: bash
 
     - name: Check if blogc works
+      id: version
       run: |
         blogc -v
         blogc-make -v
+        echo "version=$(blogc -v | cut -d' ' -f2)" >> $GITHUB_OUTPUT
       shell: bash
