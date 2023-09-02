@@ -102,14 +102,6 @@ runs:
       run: rm -rf .blogc-build
       shell: bash
 
-    - name: Save blogc build to cache, if needed
-      if: steps.cache-restore.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v3
-      id: cache-save
-      with:
-        path: /opt/blogc
-        key: Linux-build-blogc-${{ steps.gitref.outputs.ref }}
-
     - name: Add blogc to PATH
       run: echo "/opt/blogc/bin" >> $GITHUB_PATH
       shell: bash
@@ -121,3 +113,11 @@ runs:
         blogc-make -v
         echo "version=$(blogc -v | cut -d' ' -f2)" >> $GITHUB_OUTPUT
       shell: bash
+
+    - name: Save blogc build to cache, if needed
+      if: steps.cache-restore.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v3
+      id: cache-save
+      with:
+        path: /opt/blogc
+        key: Linux-build-blogc-${{ steps.gitref.outputs.ref }}
