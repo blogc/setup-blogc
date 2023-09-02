@@ -28,7 +28,7 @@ runs:
       uses: actions/cache/restore@v3
       with:
         path: /opt/blogc
-        key: Linux-build-blogc-{{ inputs.blogc-version }}
+        key: Linux-build-blogc-${{ inputs.blogc-version }}
 
     - name: Check out code
       if: steps.cache-restore.outputs.cache-hit != 'true'
@@ -63,7 +63,7 @@ runs:
       id: cache-save
       with:
         path: /opt/blogc
-        key: Linux-build-blogc-{{ inputs.blogc-version }}
+        key: Linux-build-blogc-${{ inputs.blogc-version }}
 
     - name: Add blogc to PATH
       run: echo "/opt/blogc/bin" >> $GITHUB_PATH
