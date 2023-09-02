@@ -9,7 +9,7 @@ inputs:
 
 outputs:
   blogc-version:
-    description: 'The installed blogc version. Useful when given LATEST as input.'
+    description: 'The installed blogc version. Useful when given LATEST or some Git reference as input.'
     value: ${{ steps.version.outputs.version }}
 
   cache-hit:

@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
 
 jobs:
   test-check:
@@ -19,18 +18,16 @@ jobs:
           - 0.19.0
 
     steps:
-      - uses: actions/checkout@v3
-        with:
-          path: action
-          clean: true
+      - name: Check out code
+        uses: actions/checkout@v3
 
-      - name: Check
-        id: foo
-        uses: blogc/setup-blogc@main
+      - name: Test
+        id: test
+        uses: ./
         with:
           blogc-version: ${{ matrix.version }}
 
       - name: Dump outputs
         run: |
-          echo "Version: ${{ steps.foo.outputs.blogc-version }}"
-          echo "Cache hit: ${{ steps.foo.outputs.cache-hit }}"
+          echo "Version: ${{ steps.test.outputs.blogc-version }}"
+          echo "Cache hit: ${{ steps.test.outputs.cache-hit }}"
