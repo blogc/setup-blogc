@@ -30,7 +30,7 @@ runs:
         ref: ${{ inputs.blogc-version }}
 
     - name: Install dependencies
-      run: apt install -y ronn
+      run: sudo apt install -y ronn
       shell: bash
 
     - name: Build blogc
