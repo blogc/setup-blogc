@@ -3,15 +3,17 @@ description: 'Setup a blogc environment and add it to the PATH'
 
 inputs:
   blogc-version:
-    description: 'The blogc version to setup. Must be a git reference or LATEST for latest stable release'
+    description: 'The blogc version to setup. Must be a version, a Git reference or LATEST for latest stable release'
     required: true
     default: 'LATEST'
 
 outputs:
   blogc-version:
     description: 'The installed blogc version. Useful when given LATEST as input.'
+
   cache-hit:
     description: 'A boolean value to indicate if a cache was hit'
+    value: ${{ steps.cache-restore.outputs.cache-hit }}
 
 runs:
   using: "composite"
@@ -23,19 +25,52 @@ runs:
         exit 1
       shell: bash
 
+    - name: Resolve git reference
+      id: gitref
+      run: |
+        ref="${{ inputs.blogc-version }}"
+
+        if [[ "x${ref}" = xLATEST ]]; then
+          ref="$(
+            git \
+              -c versionsort.suffix=- \
+              ls-remote \
+                --exit-code \
+                --refs \
+                --sort=version:refname \
+                --tags \
+                https://github.com/blogc/blogc.git \
+                "v*.*.*" \
+            | cut -d/ -f3- \
+            | tail -n 1
+          )"
+        fi
+
+        if [[ "${ref}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          ref="v${ref}"
+        fi
+
+        ref="$(git ls-remote --exit-code https://github.com/blogc/blogc.git "${ref}")"
+        if [[ $? != 0 ]]; then
+          echo "::error title=Error hint::The requested version was not found: ${{ inputs.blogc-version }}"
+          exit 1
+        fi
+
+        echo "ref=${ref}" >> $GITHUB_OUTPUT
+
     - name: Restore blogc build from cache, if exists
       id: cache-restore
       uses: actions/cache/restore@v3
       with:
         path: /opt/blogc
-        key: Linux-build-blogc-${{ inputs.blogc-version }}
+        key: Linux-build-blogc-${{ steps.gitref.outputs.ref }}
 
     - name: Check out code
       if: steps.cache-restore.outputs.cache-hit != 'true'
       uses: actions/checkout@v3
       with:
         repository: blogc/blogc
-        ref: ${{ inputs.blogc-version }}
+        ref: ${{ steps.gitref.outputs.ref }}
 
     - name: Install dependencies
       if: steps.cache-restore.outputs.cache-hit != 'true'
@@ -63,7 +98,7 @@ runs:
       id: cache-save
       with:
         path: /opt/blogc
-        key: Linux-build-blogc-${{ inputs.blogc-version }}
+        key: Linux-build-blogc-${{ steps.gitref.outputs.ref }}
 
     - name: Add blogc to PATH
       run: echo "/opt/blogc/bin" >> $GITHUB_PATH
