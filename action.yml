@@ -57,6 +57,7 @@ runs:
         fi
 
         echo "ref=${ref}" >> $GITHUB_OUTPUT
+      shell: bash
 
     - name: Restore blogc build from cache, if exists
       id: cache-restore
