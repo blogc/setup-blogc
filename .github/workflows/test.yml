@@ -19,4 +19,4 @@ jobs:
       - name: Check
         uses: ./action
         with:
-          blogc-version: 0.20.1
+          blogc-version: v0.20.1
