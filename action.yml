@@ -38,7 +38,7 @@ runs:
         ./autogen.sh
         ./configure \
           "CFLAGS=-Wall -g -O3" \
-          --prefix=/
+          --prefix=/ \
           --disable-silent-rules \
           --disable-valgrind \
           --disable-tests \
