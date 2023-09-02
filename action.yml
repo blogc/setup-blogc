@@ -98,6 +98,7 @@ runs:
       shell: bash
 
     - name: Delete blogc build directory
+      if: steps.cache-restore.outputs.cache-hit != 'true'
       run: rm -rf .blogc-build
       shell: bash
 
