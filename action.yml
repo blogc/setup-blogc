@@ -62,14 +62,14 @@ runs:
 
     - name: Restore blogc build from cache, if exists
       id: cache-restore
-      uses: actions/cache/restore@v3
+      uses: actions/cache/restore@v4
       with:
         path: /opt/blogc
         key: Linux-build-blogc-${{ steps.gitref.outputs.ref }}
 
     - name: Check out code
       if: steps.cache-restore.outputs.cache-hit != 'true'
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: blogc/blogc
         ref: ${{ steps.gitref.outputs.ref }}
@@ -116,7 +116,7 @@ runs:
 
     - name: Save blogc build to cache, if needed
       if: steps.cache-restore.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v3
+      uses: actions/cache/save@v4
       id: cache-save
       with:
         path: /opt/blogc
