@@ -76,25 +76,59 @@ runs:
         path: .blogc-build
         fetch-depth: 0
 
-    - name: Install dependencies
+    - name: Detect build system
       if: steps.cache-restore.outputs.cache-hit != 'true'
+      id: build-system
+      run: |
+        if [[ -e "CMakeLists.txt" ]]; then
+          echo "name=cmake" >> $GITHUB_OUTPUT
+        else
+          echo "name=autotools" >> $GITHUB_OUTPUT
+        fi
+      shell: bash
+
+    - name: Install dependencies (autotools)
+      if: steps.cache-restore.outputs.cache-hit != 'true' && steps.build-system.outputs.name == 'autotools'
       run: sudo apt install -y ronn
       shell: bash
 
-    - name: Build blogc
-      if: steps.cache-restore.outputs.cache-hit != 'true'
+    - name: Install dependencies (cmake)
+      if: steps.cache-restore.outputs.cache-hit != 'true' && steps.build-system.outputs.name == 'cmake'
+      run: sudo apt install -y cmake ninja-build
+      shell: bash
+
+    - name: Build blogc (autotools)
+      if: steps.cache-restore.outputs.cache-hit != 'true' && steps.build-system.outputs.name == 'autotools'
       working-directory: .blogc-build
       run: |
         ./autogen.sh
         ./configure \
           "CFLAGS=-Wall -g -O3" \
-          --prefix=/ \
+          --prefix=/opt/blogc \
           --disable-silent-rules \
           --disable-valgrind \
           --disable-tests \
           --enable-make
         make -j$(nproc)
-        sudo make DESTDIR=/opt/blogc install
+        sudo make install
+      shell: bash
+
+    - name: Build blogc (cmake)
+      if: steps.cache-restore.outputs.cache-hit != 'true' && steps.build-system.outputs.name == 'cmake'
+      working-directory: .blogc-build
+      run: |
+        cmake \
+          -B build \
+          -S . \
+          -DCMAKE_INSTALL_PREFIX=/opt/blogc \
+          -G Ninja
+        cmake \
+          --build build \
+          --config Release
+        sudo cmake \
+          --build build \
+          --config Release \
+          --target install
       shell: bash
 
     - name: Delete blogc build directory
