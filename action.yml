@@ -122,6 +122,7 @@ runs:
           -B build \
           -S . \
           -DCMAKE_INSTALL_PREFIX=/opt/blogc \
+          -DBUILD_BLOGC_MAKE=ON \
           -G Ninja
         cmake \
           --build build \
