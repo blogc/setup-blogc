@@ -79,6 +79,7 @@ runs:
     - name: Detect build system
       if: steps.cache-restore.outputs.cache-hit != 'true'
       id: build-system
+      working-directory: .blogc-build
       run: |
         if [[ -e "CMakeLists.txt" ]]; then
           echo "name=cmake" >> $GITHUB_OUTPUT
