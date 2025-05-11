@@ -90,7 +90,9 @@ runs:
 
     - name: Install dependencies (autotools)
       if: steps.cache-restore.outputs.cache-hit != 'true' && steps.build-system.outputs.name == 'autotools'
-      run: sudo apt install -y ronn
+      run: |
+        sudo apt update
+        sudo apt install -y --no-install-recommends ronn
       shell: bash
 
     - name: Install dependencies (cmake)
